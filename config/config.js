@@ -16,7 +16,7 @@ module.exports = {
     "operatorsAliases": false
   },
   "production": {
-    "use_env_variable" : "JAWSDB_URL",
+    "use_env_variable" : "MYSQL_URL",
     "dialect": "mysql"
   }
 }

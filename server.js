@@ -25,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Define middleware here
 app.use(express.json());
 
-// Serve up static assets (usually on heroku)
+// Serve up static assets in production
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
