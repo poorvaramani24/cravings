@@ -1,56 +1,44 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Wrapper from "../components/Wrapper";
-import { Input, InputReadOnly, FormBtn } from "../components/PageComponents";
-import API from "../utils/API";
-import FormCard from "../components/FormCard";
 import Title from "../components/Title";
+import API from "../utils/API";
 import UserContext from "../context/UserContext";
 import Spinner from "../components/Spinner";
 import { ToastContainer, toast } from "react-toastify";
-// import CustomModal from "../components/CustomModal/custommodal";
-
+import "./Profile.css";
 
 function EditProfile() {
-  const { isLoggedIn, user, setUser, loading, setLoading } = useContext(UserContext);
+  const { user, setUser, loading, setLoading } = useContext(UserContext);
   const [profile, setProfile] = useState({});
   const navigate = useNavigate();
 
-  //function to grab one authenticated user and console.log
   useEffect(() => {
     API.fetchUser(user)
       .then(profile => {
         setProfile(profile);
-        // console.log(user)
       })
       .catch(err => console.log(err));
   }, []);
 
-  // Handles updating component state when the user types into the input field
   function handleInputChange(event) {
     const { name, value } = event.target;
     setProfile({ ...profile, [name]: value });
     setUser({ ...profile, [name]: value });
   }
 
-  // When the form is submitted, use the API.saveUser method to save the book data
-  // Then reload books from the database
   function handleFormSubmit(event) {
     setLoading(true);
     event.preventDefault();
     API.editUser(profile)
       .then(res => {
-        setLoading(false)
-        // console.log("res");
-        // console.log(res);
+        setLoading(false);
         if (res === 0) {
-            toast.error(
-              "No changes were made to your profile",
-              {position: "bottom-right"}
-            );
+          toast.error("No changes were made to your profile", {
+            position: "bottom-right"
+          });
         } else if (res === 1) {
-          console.log('updated the user')
-          navigate("/profile")
+          navigate("/profile");
         }
       })
       .catch(err => console.log(err));
@@ -59,43 +47,67 @@ function EditProfile() {
   return (
     <Wrapper>
       <Title>Edit Profile</Title>
-      <FormCard
-        form={
-          <form>
-            <InputReadOnly label="User Name" value={profile.username} />
-            <Input
-              onChange={handleInputChange}
+      <div className="profile-card">
+        <div className="profile-header">
+          <img
+            className="profile-avatar"
+            src="/images/default-avatar.jpg"
+            alt={`${profile.username}'s avatar`}
+          />
+          <h2 className="profile-username">@{profile.username}</h2>
+        </div>
+        <form className="edit-profile-form" onSubmit={handleFormSubmit}>
+          <div className="edit-field">
+            <label className="edit-label">First Name</label>
+            <input
+              className="edit-input"
               type="text"
-              label="First Name"
               name="first_name"
-              defaultValue={profile.first_name}
-            />
-            <Input
+              value={profile.first_name || ""}
               onChange={handleInputChange}
-              label="Last Name"
+            />
+          </div>
+          <div className="edit-field">
+            <label className="edit-label">Last Name</label>
+            <input
+              className="edit-input"
+              type="text"
               name="last_name"
-              defaultValue={profile.last_name}
-            />
-            <Input
-              label="Email"
+              value={profile.last_name || ""}
               onChange={handleInputChange}
+            />
+          </div>
+          <div className="edit-field">
+            <label className="edit-label">Email</label>
+            <input
+              className="edit-input"
+              type="text"
               name="email"
-              defaultValue={profile.email}
-            />
-            <Input
-              label="Zip Code"
+              value={profile.email || ""}
               onChange={handleInputChange}
-              name="zip_code"
-              defaultValue={profile.zip_code}
             />
+          </div>
+          <div className="edit-field">
+            <label className="edit-label">Zip Code</label>
+            <input
+              className="edit-input"
+              type="text"
+              name="zip_code"
+              value={profile.zip_code || ""}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="profile-actions">
             {loading ? (
               <Spinner />
             ) : (
-              <FormBtn onClick={handleFormSubmit}>Update</FormBtn>
+              <button type="submit" className="profile-edit-btn">
+                Save Changes
+              </button>
             )}
-          </form>
-        }
-      />
+          </div>
+        </form>
+      </div>
       <ToastContainer autoClose={3000} />
     </Wrapper>
   );

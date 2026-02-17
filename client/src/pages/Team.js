@@ -36,7 +36,7 @@ const Team = () => {
     switch (isEmpty) {
       case false:
         return (
-          <div>
+          <div className="team-grid">
             {users.map(user => (
               <UserCard
                 username={user.username}

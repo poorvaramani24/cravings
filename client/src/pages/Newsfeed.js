@@ -19,31 +19,33 @@ const Newsfeed = () => {
     API.fetchFeeds()
       .then(feeds => {
         setFeeds(feeds);
-        console.log(feeds);
         setLoading(false);
         return feeds;
       })
       .catch(err => console.log(err));
-  };
+  }
 
   return (
     <Wrapper>
       <Title>Swipes near you!</Title>
-      <div>
-        {loading ? <Spinner /> : null}
-      </div>
-      {feeds.map(feed => (
-        <FeedCard
-          id={feed.id}
-          user_id={feed.user_id}
-          username={feed.username}
-          activity_type={feed.activity_type}
-          restaurant_name={feed.restaurant_name}
-          key={feed.id}
-          link={feed.link}
-          image={feed.image}
-        />
-      ))}
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div className="feed-list">
+          {feeds.map(feed => (
+            <FeedCard
+              id={feed.id}
+              user_id={feed.user_id}
+              username={feed.username}
+              activity_type={feed.activity_type}
+              restaurant_name={feed.restaurant_name}
+              key={feed.id}
+              link={feed.link}
+              image={feed.image}
+            />
+          ))}
+        </div>
+      )}
     </Wrapper>
   );
 };

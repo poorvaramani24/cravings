@@ -1,74 +1,67 @@
-
-.feedcard-container {
-  margin: auto;
-  width: 40%;
+.feed-list {
+  max-width: 550px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
-
-
-@media only screen and (max-width: 768px) {
-  .feedcard-container {
-    width: 90%;
-  }
-}
-
-@media only screen and (max-width: 480px) {
-  .feedcard-container {
-    width: 95%;
-  }
-}
-
-* {
-  box-sizing: border-box;
-  font-family: sans-serif;
-}
-
-
 
 .feed-card {
   background: #fff;
-  border-radius: 2px;
-  margin: 1rem;
-  position: relative;
-  width: 100%;
-  box-shadow: 0 3px 6px #999, 0 3px 6px #999;
-  text-align: left;
   border-radius: 1rem;
-}
-
-.feed-card > .img-container {
-  height: 60%;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  text-align: center;
-  border-radius: 1rem;
-}
-.feed-card > .img-container > img {
-  width: 100%;
-  max-height: 300px;
 }
 
-.feed-card > .content {
-  padding-right: 1rem;
-  font-size: 12px;
+.feed-card-header {
   display: flex;
-  margin: 1rem;
-  /* align-items: center;
-  justify-content: center; */
+  align-items: center;
+  padding: 1rem 1.25rem;
+  gap: 0.75rem;
 }
 
-.feed-card > .content > ul {
-  list-style-type: none;
+.feed-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
-.feed-card > .content > ul > li {
-  margin-top: 10px;
+.feed-card-info {
+  min-width: 0;
 }
 
-.linkedContent {
-  font-size: medium;
+.feed-card-user {
+  font-size: 0.95rem;
+  margin: 0;
+  color: #212529;
 }
 
-.avatar-image{
-  border-radius: 1rem;
+.feed-card-user strong {
+  font-weight: 600;
 }
 
+.feed-card-restaurant {
+  font-size: 0.95rem;
+  color: #343a40;
+  font-weight: 500;
+  text-decoration: none;
+}
 
+.feed-card-restaurant:hover {
+  color: #495057;
+  text-decoration: underline;
+}
+
+.feed-card-image {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  display: block;
+}
+
+@media only screen and (max-width: 768px) {
+  .feed-list {
+    max-width: 100%;
+  }
+}

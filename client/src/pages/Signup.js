@@ -1,38 +1,27 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../index.css";
 import Wrapper from "../components/Wrapper";
-import { Input, FormBtn } from "../components/PageComponents";
-import API from "../utils/API";
-import FormCard from "../components/FormCard";
 import Title from "../components/Title";
+import API from "../utils/API";
 import UserContext from "../context/UserContext";
 import Spinner from "../components/Spinner";
 import { ToastContainer, toast } from "react-toastify";
+import "./AuthForm.css";
 
 function Signup() {
   const { loading, setLoading } = useContext(UserContext);
-  const [user, setUser] = useState({});
   const [formObject, setFormObject] = useState({});
   const navigate = useNavigate();
 
-  //function to grab all users and console.log
-  // function loadUsers() {
-  //   API.getUsers()
-  //     .then(res => setUser(res.data), console.log("loadUser call and API req"))
-  //     .catch(err => console.log(err));
-  // }
-
-  // Handles updating component state when the user types into the input field
   function handleInputChange(event) {
     const { name, value } = event.target;
     setFormObject({ ...formObject, [name]: value });
   }
 
   function handleFormSubmit(event) {
-    setLoading(true);
     event.preventDefault();
     if (formObject.inputUsername && formObject.inputPassword) {
+      setLoading(true);
       API.saveUser({
         first_name: formObject.inputFirstName,
         last_name: formObject.inputLastName,
@@ -44,97 +33,75 @@ function Signup() {
         .then(res => {
           setLoading(false);
           if (res.data.username) {
-            // console.log("user posted to DB");
-            navigate('/login')
+            navigate('/login');
           } else if (res.data.created === false) {
-          //Currently not working as expected
-            {
-              toast.error("There was a validation error during signup - Please choose another username", {
-                position: "bottom-right"
-              });
-            }
-          }
-          else {
+            toast.error("There was a validation error - Please choose another username", {
+              position: "bottom-right"
+            });
+          } else {
             toast.error("There was an error during signup", {
               position: "bottom-right"
             });
           }
-      //    loadUsers(user);
         })
         .catch(err => console.log(err));
-    } else if (!formObject.inputUsername && !formObject.inputPassword) {
+    } else {
       setLoading(false);
-        toast.error(
-          "Please fill out all fields to signup",
-          {
-            position: "bottom-right"
-          }
-        );
-      return;
+      toast.error("Please fill out all fields to signup", {
+        position: "bottom-right"
+      });
     }
   }
 
   return (
     <Wrapper>
-      <Title>
-        Don't have an account? Sign up to find your perfect restaurant match.
-      </Title>
-      <FormCard
-        form={
-          <form>
-            <Input
-              onChange={handleInputChange}
-              label="First Name"
-              name="inputFirstName"
-              placeholder="First Name"
-            />
-            <Input
-              onChange={handleInputChange}
-              label="Last Name"
-              name="inputLastName"
-              placeholder="Last Name"
-            />
-            <Input
-              onChange={handleInputChange}
-              label="User Name"
-              name="inputUsername"
-              placeholder="Username"
-            />
-            <Input
-              onChange={handleInputChange}
-              label="Email"
-              name="inputEmail"
-              placeholder="Email"
-            />
-            <Input
-              label="Zip Code"
-              onChange={handleInputChange}
-              name="inputZipCode"
-              placeholder="Zip Code"
-            />
-            <hr></hr>
-            <Input
-              label="Password"
-              type="password"
-              onChange={handleInputChange}
-              name="inputPassword"
-              placeholder="Password"
-            />
-            <Input
-              label="Confirm Password"
-              onChange={handleInputChange}
-              name="inputConfirmPassword"
-              placeholder="Confirm Password"
-            />
+      <Title>Create your account</Title>
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2 className="auth-title">Join Cravings</h2>
+          <p className="auth-subtitle">Sign up to discover restaurants</p>
+        </div>
+        <form className="auth-form" onSubmit={handleFormSubmit}>
+          <div className="auth-field">
+            <label className="auth-label">First Name</label>
+            <input className="auth-input" type="text" name="inputFirstName" placeholder="First Name" onChange={handleInputChange} />
+          </div>
+          <div className="auth-field">
+            <label className="auth-label">Last Name</label>
+            <input className="auth-input" type="text" name="inputLastName" placeholder="Last Name" onChange={handleInputChange} />
+          </div>
+          <div className="auth-field">
+            <label className="auth-label">Username</label>
+            <input className="auth-input" type="text" name="inputUsername" placeholder="Username" onChange={handleInputChange} />
+          </div>
+          <div className="auth-field">
+            <label className="auth-label">Email</label>
+            <input className="auth-input" type="email" name="inputEmail" placeholder="Email" onChange={handleInputChange} />
+          </div>
+          <div className="auth-field">
+            <label className="auth-label">Zip Code</label>
+            <input className="auth-input" type="text" name="inputZipCode" placeholder="Zip Code" onChange={handleInputChange} />
+          </div>
+          <div className="auth-field">
+            <label className="auth-label">Password</label>
+            <input className="auth-input" type="password" name="inputPassword" placeholder="Password" onChange={handleInputChange} />
+          </div>
+          <div className="auth-field">
+            <label className="auth-label">Confirm Password</label>
+            <input className="auth-input" type="password" name="inputConfirmPassword" placeholder="Confirm Password" onChange={handleInputChange} />
+          </div>
+          <div className="auth-actions">
             {loading ? (
               <Spinner />
             ) : (
-              <FormBtn onClick={handleFormSubmit}>Sign up</FormBtn>
+              <button type="submit" className="auth-btn">Sign Up</button>
             )}
-            <Link to="/login">Sign in</Link>
-          </form>
-        }
-      />
+          </div>
+          <p className="auth-switch">
+            Already have an account? <Link to="/login">Log in</Link>
+          </p>
+        </form>
+      </div>
       <ToastContainer />
     </Wrapper>
   );

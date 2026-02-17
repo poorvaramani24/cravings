@@ -1,18 +1,18 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import "./navbar.css";
 import UserContext from "../../context/UserContext";
 
 function Navbar() {
   const { isLoggedIn } = useContext(UserContext);
-  const collapseRef = useRef(null);
-  const togglerRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  function collapseNav() {
-    const el = collapseRef.current;
-    if (el && el.classList.contains("show")) {
-      el.classList.remove("show");
-    }
+  function toggleMenu() {
+    setMenuOpen(prev => !prev);
+  }
+
+  function closeMenu() {
+    setMenuOpen(false);
   }
 
   return (
@@ -28,66 +28,50 @@ function Navbar() {
       <button
         className="navbar-toggler"
         type="button"
-        ref={togglerRef}
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
+        onClick={toggleMenu}
         aria-controls="navbarSupportedContent"
-        aria-expanded="false"
+        aria-expanded={menuOpen}
         aria-label="Toggle navigation"
       >
         <span className="navbar-toggler-icon"></span>
       </button>
 
-      <div className="collapse navbar-collapse" id="navbarSupportedContent" ref={collapseRef}>
+      <div className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`} id="navbarSupportedContent">
         <ul className="navbar-nav me-auto">
-          {isLoggedIn === true ? (
+          {isLoggedIn ? (
             <>
-              <li className="nav-item active">
-                <Link to="/search" className="nav-link" onClick={collapseNav}>
-                  Search
-                </Link>
+              <li className="nav-item">
+                <Link to="/search" className="nav-link" onClick={closeMenu}>Search</Link>
               </li>
-              <li className="nav-item active">
-                <Link to="/profile" className="nav-link" onClick={collapseNav}>
-                  Profile
-                </Link>
+              <li className="nav-item">
+                <Link to="/profile" className="nav-link" onClick={closeMenu}>Profile</Link>
               </li>
-              <li className="nav-item active">
-                <Link to="/newsfeed" className="nav-link" onClick={collapseNav}>
-                  Newsfeed
-                </Link>
+              <li className="nav-item">
+                <Link to="/newsfeed" className="nav-link" onClick={closeMenu}>Newsfeed</Link>
               </li>
-              <li className="nav-item active">
-                <Link to="/team" className="nav-link" onClick={collapseNav}>
-                  Team
-                </Link>
+              <li className="nav-item">
+                <Link to="/team" className="nav-link" onClick={closeMenu}>Team</Link>
               </li>
             </>
           ) : null}
         </ul>
 
-        <form className="form-inline my-2 my-lg-0">
-          {isLoggedIn === true ? (
-            <Link to="/logout" onClick={collapseNav}>
-              <button className="btn btn-outline-light my-2 my-sm-0">
-                Logout
-              </button>
+        <div className="nav-auth-buttons">
+          {isLoggedIn ? (
+            <Link to="/logout" onClick={closeMenu}>
+              <button className="btn btn-outline-light my-2 my-sm-0">Logout</button>
             </Link>
           ) : (
             <>
-              <Link to="/signup" onClick={collapseNav}>
-                <button className="btn btn-outline-light my-2 my-sm-0">
-                  Sign Up
-                </button>
+              <Link to="/signup" onClick={closeMenu}>
+                <button className="btn btn-outline-light my-2 my-sm-0">Sign Up</button>
               </Link>
-              <Link to="/login" onClick={collapseNav}>
-                <button className="btn btn-outline-light my-2 my-sm-0">
-                  Login
-                </button>
+              <Link to="/login" onClick={closeMenu}>
+                <button className="btn btn-outline-light my-2 my-sm-0">Login</button>
               </Link>
             </>
           )}
-        </form>
+        </div>
       </div>
     </nav>
   );

@@ -1,30 +1,19 @@
 import React from "react";
 import "./usercard.css";
 
-
 function UserCard(props) {
-  
   return (
-    <div className="user-wrapper">
     <div className="user-card">
-      <div className="img-container">
+      <div className="user-card-avatar">
         <img
           alt={props.username}
-          // src={image}
-          src= {`https://api.adorable.io/avatars/200/${props.username}.png`}
+          src="/images/default-avatar.jpg"
         />
       </div>
-      <div className="content">
-        <ul>
-          <li>
-            <strong>Username:</strong> {props.username}
-          </li>
-          <li>
-            <strong>Name:</strong> {props.first_name} {props.last_name}
-          </li>
-        </ul>
-      </div>
-    </div>
+      <h3 className="user-card-username">@{props.username}</h3>
+      <p className="user-card-name">
+        {props.first_name} {props.last_name}
+      </p>
     </div>
   );
 }

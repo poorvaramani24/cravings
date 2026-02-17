@@ -379,7 +379,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 200;
+  z-index: 1040;
   animation: fadeIn 0.2s ease;
 }
 
@@ -395,7 +395,7 @@ body {
   -webkit-backdrop-filter: blur(12px);
   padding: 1.25rem;
   overflow-y: auto;
-  z-index: 201;
+  z-index: 1050;
   animation: slideInRight 0.25s ease;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.3) transparent;

@@ -1,24 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../index.css";
 import Wrapper from "../components/Wrapper";
-import API from "../utils/API";
-import { Input, FormBtn } from "../components/PageComponents";
-import FormCard from "../components/FormCard";
 import Title from "../components/Title";
+import API from "../utils/API";
 import UserContext from '../context/UserContext';
 import Spinner from '../components/Spinner';
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
-
+import "./AuthForm.css";
 
 const Logout = () => {
-  //set initial state
-  const [formLogin, setFormLogin] = useState(null);
-  const { user, setUser, isLoggedIn, setIsLoggedIn, loading, setLoading } = useContext(UserContext)
+  const [formLogin, setFormLogin] = useState({});
+  const { isLoggedIn, setUser, setIsLoggedIn, loading, setLoading } = useContext(UserContext);
   const navigate = useNavigate();
 
-  // On mount, call backend logout to destroy session
   useEffect(() => {
     if (isLoggedIn) {
       axios.get("/logout").then(() => {
@@ -33,8 +28,6 @@ const Logout = () => {
     }
   }, []);
 
-
-  // Handles updating component state when the user types into the input field
   function handleInputChange(event) {
     const { name, value } = event.target;
     setFormLogin({ ...formLogin, [name]: value });
@@ -42,11 +35,8 @@ const Logout = () => {
 
   function handleFormSubmit(event) {
     event.preventDefault();
-    if (formLogin && formLogin.username && formLogin.password) {
+    if (formLogin.username && formLogin.password) {
       setLoading(true);
-      if (!formLogin.username || !formLogin.password) {
-        console.log("no username or password entered");
-      }
       API.getOneUser({
         username: formLogin.username,
         password: formLogin.password
@@ -57,69 +47,69 @@ const Logout = () => {
             setUser(res.data);
             setIsLoggedIn(true);
             navigate("/search");
-          } else if (!res.data.username) {
-              toast.error(
-                "Sorry, no user found with that username. Check your credentials or signup.",
-                {
-                  position: "bottom-right"
-                }
-              );
+          } else {
+            toast.error(
+              "Sorry, no user found with that username. Check your credentials or signup.",
+              { position: "bottom-right" }
+            );
           }
         })
         .catch(err => {
-          if (err.response.status === 401) {
-            setLoading(false);
-              toast.error(
-                "Incorrect credential. Please try again.",
-                {
-                  position: "bottom-right"
-                }
-              );
-          } else {
-            console.log(err);
+          setLoading(false);
+          if (err.response && err.response.status === 401) {
+            toast.error("Incorrect credential. Please try again.", {
+              position: "bottom-right"
+            });
           }
         });
     } else {
-      toast.error(
-        "Please enter your username and password",
-        {
-          position: "bottom-right"
-        }
-      );
-      console.log("there is no formLogin info");
+      toast.error("Please enter your username and password", {
+        position: "bottom-right"
+      });
     }
   }
 
   return (
     <Wrapper>
-      <Title>You have been logged out. Please log back in.</Title>
-      <FormCard
-        form={
-          <form>
-            <Input
-              label="Username"
-              onChange={handleInputChange}
-              id="username"
+      <Title>You have been logged out.</Title>
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2 className="auth-title">See You Soon</h2>
+          <p className="auth-subtitle">Log back in to continue</p>
+        </div>
+        <form className="auth-form" onSubmit={handleFormSubmit}>
+          <div className="auth-field">
+            <label className="auth-label">Username</label>
+            <input
+              className="auth-input"
+              type="text"
               name="username"
-              placeholder="Username"
-            />
-            <Input
-              label="Password"
-              type="password"
+              placeholder="Enter your username"
               onChange={handleInputChange}
-              id="password"
-              name="password"
-              placeholder="Password"
             />
+          </div>
+          <div className="auth-field">
+            <label className="auth-label">Password</label>
+            <input
+              className="auth-input"
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="auth-actions">
             {loading ? (
               <Spinner />
             ) : (
-              <FormBtn onClick={handleFormSubmit}>Log in</FormBtn>
+              <button type="submit" className="auth-btn">Log in</button>
             )}
-            <Link to="/signup">Sign Up</Link>
-          </form>
-        }
-      />
+          </div>
+          <p className="auth-switch">
+            Don't have an account? <Link to="/signup">Sign Up</Link>
+          </p>
+        </form>
+      </div>
       <ToastContainer autoClose={3000} />
     </Wrapper>
   );
