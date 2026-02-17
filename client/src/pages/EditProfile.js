@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import Wrapper from "../components/Wrapper";
 import { Input, InputReadOnly, FormBtn } from "../components/PageComponents";
 import API from "../utils/API";
@@ -10,9 +11,10 @@ import { ToastContainer, toast } from "react-toastify";
 // import CustomModal from "../components/CustomModal/custommodal";
 
 
-function EditProfile(props) {
+function EditProfile() {
   const { isLoggedIn, user, setUser, loading, setLoading } = useContext(UserContext);
   const [profile, setProfile] = useState({});
+  const navigate = useNavigate();
 
   //function to grab one authenticated user and console.log
   useEffect(() => {
@@ -44,11 +46,11 @@ function EditProfile(props) {
         if (res === 0) {
             toast.error(
               "No changes were made to your profile",
-              {position: toast.POSITION.BOTTOM_RIGHT}
+              {position: "bottom-right"}
             );
         } else if (res === 1) {
           console.log('updated the user')
-          props.history.push("/profile")
+          navigate("/profile")
         }
       })
       .catch(err => console.log(err));
@@ -87,7 +89,7 @@ function EditProfile(props) {
               defaultValue={profile.zip_code}
             />
             {loading ? (
-              [<Spinner></Spinner>]
+              <Spinner />
             ) : (
               <FormBtn onClick={handleFormSubmit}>Update</FormBtn>
             )}

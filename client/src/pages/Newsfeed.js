@@ -30,7 +30,7 @@ const Newsfeed = () => {
     <Wrapper>
       <Title>Swipes near you!</Title>
       <div>
-        {loading ? [<Spinner></Spinner>] : null}
+        {loading ? <Spinner /> : null}
       </div>
       {feeds.map(feed => (
         <FeedCard

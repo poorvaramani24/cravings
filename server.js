@@ -4,7 +4,6 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 const morgan = require("morgan");
 const axios = require("axios");
-const bodyParser = require("body-parser");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const passport = require("./passport/localStrategy");
@@ -19,10 +18,8 @@ require("dotenv").config();
 // set morgan to log info about our requests for development use.
 app.use(morgan("dev"));
 
-// initialize body-parser to parse incoming parameters requests to req.body
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Define middleware here
+// Parse incoming request bodies
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Serve up static assets in production
@@ -52,7 +49,7 @@ app.use(passport.session());
 require("./routes/api/api-routes")(app);
 require("./routes/api/users-routes")(app);
 
-app.get("*", function(req, res) {
+app.get("*path", function(req, res) {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 

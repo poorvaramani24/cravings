@@ -61,7 +61,7 @@ function Search() {
     axios.delete(`/api/delete/favorite/${id}`).then(() => {
       setFavorites(favorites.filter(f => f.id !== id));
       toast.info("Removed from favorites", {
-        position: toast.POSITION.BOTTOM_RIGHT
+        position: "bottom-right"
       });
     });
   };
@@ -72,7 +72,7 @@ function Search() {
     if (favorites.length >= MAX_FAVORITES) {
       toast.error(
         `You've reached the maximum limit of ${MAX_FAVORITES} favorites! Remove some to add new ones.`,
-        { position: toast.POSITION.BOTTOM_RIGHT }
+        { position: "bottom-right" }
       );
       return Promise.resolve();
     }
@@ -82,16 +82,16 @@ function Search() {
       .then(res => {
         if (!res.data) {
           toast.error("Psst... This restaurant is already in your favorites!", {
-            position: toast.POSITION.BOTTOM_RIGHT
+            position: "bottom-right"
           });
         } else if (res.data.count) {
           toast.warning(
             `You and ${res.data.count} other(s) already have ${res.data.name} added to your favorites!`,
-            { position: toast.POSITION.BOTTOM_RIGHT }
+            { position: "bottom-right" }
           );
         } else if (res.data.favorite) {
           toast.success(`${res.data.favorite.item.name} was added to your favorites`, {
-            position: toast.POSITION.BOTTOM_RIGHT
+            position: "bottom-right"
           });
         }
         loadFavorites();
@@ -100,7 +100,7 @@ function Search() {
         if (err.response && err.response.status === 400 && err.response.data.error === "limit_reached") {
           toast.error(
             `You've reached the maximum limit of ${MAX_FAVORITES} favorites! Remove some to add new ones.`,
-            { position: toast.POSITION.BOTTOM_RIGHT }
+            { position: "bottom-right" }
           );
         }
       });
@@ -128,7 +128,7 @@ function Search() {
         toast.error(
           "There are no more results! Please refine your search.",
           {
-            position: toast.POSITION.BOTTOM_RIGHT
+            position: "bottom-right"
           }
         );
     }
@@ -175,7 +175,7 @@ function Search() {
           toast.error(
             "Sorry, there are no results! Please change your search.",
             {
-              position: toast.POSITION.BOTTOM_RIGHT
+              position: "bottom-right"
             }
           );
       });

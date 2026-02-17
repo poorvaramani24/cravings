@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../index.css";
 import Wrapper from "../components/Wrapper";
 import { Input, FormBtn } from "../components/PageComponents";
@@ -10,10 +10,11 @@ import UserContext from "../context/UserContext";
 import Spinner from "../components/Spinner";
 import { ToastContainer, toast } from "react-toastify";
 
-function Signup(props) {
+function Signup() {
   const { loading, setLoading } = useContext(UserContext);
   const [user, setUser] = useState({});
   const [formObject, setFormObject] = useState({});
+  const navigate = useNavigate();
 
   //function to grab all users and console.log
   // function loadUsers() {
@@ -44,18 +45,18 @@ function Signup(props) {
           setLoading(false);
           if (res.data.username) {
             // console.log("user posted to DB");
-            props.history.push('/login')
+            navigate('/login')
           } else if (res.data.created === false) {
           //Currently not working as expected
             {
               toast.error("There was a validation error during signup - Please choose another username", {
-                position: toast.POSITION.BOTTOM_RIGHT
+                position: "bottom-right"
               });
             }
           }
           else {
             toast.error("There was an error during signup", {
-              position: toast.POSITION.BOTTOM_RIGHT
+              position: "bottom-right"
             });
           }
       //    loadUsers(user);
@@ -66,7 +67,7 @@ function Signup(props) {
         toast.error(
           "Please fill out all fields to signup",
           {
-            position: toast.POSITION.BOTTOM_RIGHT
+            position: "bottom-right"
           }
         );
       return;
@@ -126,7 +127,7 @@ function Signup(props) {
               placeholder="Confirm Password"
             />
             {loading ? (
-              [<Spinner></Spinner>]
+              <Spinner />
             ) : (
               <FormBtn onClick={handleFormSubmit}>Sign up</FormBtn>
             )}

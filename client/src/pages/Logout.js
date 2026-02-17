@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../index.css";
 import Wrapper from "../components/Wrapper";
 import API from "../utils/API";
@@ -12,10 +12,11 @@ import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 
 
-const Logout = props => {
+const Logout = () => {
   //set initial state
   const [formLogin, setFormLogin] = useState(null);
   const { user, setUser, isLoggedIn, setIsLoggedIn, loading, setLoading } = useContext(UserContext)
+  const navigate = useNavigate();
 
   // On mount, call backend logout to destroy session
   useEffect(() => {
@@ -55,12 +56,12 @@ const Logout = props => {
           if (res.data.username) {
             setUser(res.data);
             setIsLoggedIn(true);
-            props.history.push("/search");
+            navigate("/search");
           } else if (!res.data.username) {
               toast.error(
                 "Sorry, no user found with that username. Check your credentials or signup.",
                 {
-                  position: toast.POSITION.BOTTOM_RIGHT
+                  position: "bottom-right"
                 }
               );
           }
@@ -71,7 +72,7 @@ const Logout = props => {
               toast.error(
                 "Incorrect credential. Please try again.",
                 {
-                  position: toast.POSITION.BOTTOM_RIGHT
+                  position: "bottom-right"
                 }
               );
           } else {
@@ -82,7 +83,7 @@ const Logout = props => {
       toast.error(
         "Please enter your username and password",
         {
-          position: toast.POSITION.BOTTOM_RIGHT
+          position: "bottom-right"
         }
       );
       console.log("there is no formLogin info");
@@ -111,7 +112,7 @@ const Logout = props => {
               placeholder="Password"
             />
             {loading ? (
-              [<Spinner></Spinner>]
+              <Spinner />
             ) : (
               <FormBtn onClick={handleFormSubmit}>Log in</FormBtn>
             )}

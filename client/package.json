@@ -5,24 +5,20 @@
   "private": true,
   "proxy": "http://localhost:3001/",
   "dependencies": {
-    "axios": "^0.19.2",
-    "bootstrap": "^4.4.1",
-    "cors": "^2.8.5",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-router-dom": "^4.3.1",
-    "react-scripts": "^3.4.4",
-    "react-toastify": "^5.5.0"
+    "axios": "^1.13.5",
+    "bootstrap": "^5.3.8",
+    "cors": "^2.8.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.0",
+    "react-scripts": "^5.0.1",
+    "react-toastify": "^11.0.5"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  },
-  "engines": {
-    "node": "18.x",
-    "npm": ">=9"
   },
   "browserslist": [
     ">0.2%",

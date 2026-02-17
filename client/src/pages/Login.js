@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../index.css";
 import Wrapper from "../components/Wrapper";
 import API from "../utils/API";
@@ -11,10 +11,11 @@ import Spinner from '../components/Spinner';
 import { ToastContainer, toast } from "react-toastify";
 
 
-const Login = props => {
+const Login = () => {
   //set initial state
   const [formLogin, setFormLogin] = useState(null);
   const { user, setUser, isLoggedIn, setIsLoggedIn, loading, setLoading } = useContext(UserContext)
+  const navigate = useNavigate();
 
   //executes loadUser and populates array w/res data
   useEffect(() => {
@@ -43,12 +44,12 @@ const Login = props => {
           if (res.data.username) {
             setUser(res.data);
             setIsLoggedIn(true);
-            props.history.push("/search");
+            navigate("/search");
           } else if (!res.data.username) {
               toast.error(
                 "Sorry, no user found with that username. Check your credentials or signup.",
                 {
-                  position: toast.POSITION.BOTTOM_RIGHT
+                  position: "bottom-right"
                 }
               );
           }
@@ -59,7 +60,7 @@ const Login = props => {
               toast.error(
                 "Incorrect credential. Please try again.",
                 {
-                  position: toast.POSITION.BOTTOM_RIGHT
+                  position: "bottom-right"
                 }
               );
           } else {
@@ -70,7 +71,7 @@ const Login = props => {
       toast.error(
         "Please enter your username and password",
         {
-          position: toast.POSITION.BOTTOM_RIGHT
+          position: "bottom-right"
         }
       );
       //console.log("there is no formLogin info");
@@ -93,14 +94,13 @@ const Login = props => {
             <Input
               label="Password"
               type="password"
-              type="password"
               onChange={handleInputChange}
               id="password"
               name="password"
               placeholder="Password"
             />
             {loading ? (
-              [<Spinner></Spinner>]
+              <Spinner />
             ) : (
               <FormBtn onClick={handleFormSubmit}>Log in</FormBtn>
             )}
