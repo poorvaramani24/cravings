@@ -2,15 +2,16 @@ import axios from "axios";
 
 // Export an object containing methods we'll use for accessing the random user API
 export default {
-  fetchRestaurants: (price, category, location, transactions) => {
-    // console.log("Fetching restaurants...");
+  fetchRestaurants: ({ type, cuisine, location, diet, accessibility, radius }) => {
     return axios
       .get("api/restaurants", {
         params: {
-          price,
-          category,
+          type,
+          cuisine,
           location,
-          transactions,
+          diet,
+          accessibility,
+          radius,
         }
       })
       .then(res => {
@@ -32,7 +33,8 @@ export default {
             latitude: restaurant.coordinates.latitude,
             longitude: restaurant.coordinates.longitude,
             distance: restaurant.distance,
-            transactions: restaurant.transactions
+            transactions: restaurant.transactions,
+            opening_hours: restaurant.opening_hours
           };
         });
       });

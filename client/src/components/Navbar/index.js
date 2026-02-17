@@ -50,12 +50,6 @@ function Navbar(props) {
                       </Link>
                     </li>
                     <li className="nav-item active">
-                      <Link to="/favorites" className="nav-link">
-                        {" "}
-                        Favorites <span className="sr-only">(current)</span>
-                      </Link>
-                    </li>
-                    <li className="nav-item active">
                       <Link to="/newsfeed" className="nav-link">
                         {" "}
                         Newsfeed <span className="sr-only">(current)</span>

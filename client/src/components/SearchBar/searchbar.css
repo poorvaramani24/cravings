@@ -1,4 +1,33 @@
-#searchContainer {
+.search-bar-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
     width: 100%;
     margin-top: 10px;
+}
+
+.search-bar-row .form-control {
+    flex: 1;
+    border-radius: 8px;
+}
+
+.search-btn {
+    background: #F78E29;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.search-btn:hover {
+    background: #e07b1a;
+}
+
+.search-btn:active {
+    background: #c96c15;
 }

@@ -2,9 +2,7 @@
   border-radius: 50%;
   height: 50px;
   width: 50px;
-  position: absolute;
   border: none;
-  bottom: 10%;
   color: #fff;
   font-size: 24px;
   cursor: pointer;
@@ -13,8 +11,6 @@
 }
 
 .back {
-  top: 50%;
-  left: 20%;
   background: #F58E29;
 }
 
@@ -23,8 +19,6 @@
 }
 
 .next {
-  top: 50%;
-  right: 20%;
   background: #21704F;
 }
 

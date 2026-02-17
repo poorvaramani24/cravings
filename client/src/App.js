@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import axios from "axios";
 import Favorites from "./pages/Favorites";
 import Search from "./pages/Search";
 import Profile from "./pages/Profile";
@@ -17,10 +18,41 @@ import UserContext from './context/UserContext';
 import "react-toastify/dist/ReactToastify.min.css";
 
 
+function PrivateRoute({ component: Component, ...rest }) {
+  const { isLoggedIn } = useContext(UserContext);
+  return (
+    <Route
+      {...rest}
+      render={props =>
+        isLoggedIn ? <Component {...props} /> : <Redirect to="/login" />
+      }
+    />
+  );
+}
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
+  const historyRef = useRef(null);
+
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response && error.response.status === 401 && isLoggedIn) {
+          setUser({});
+          setIsLoggedIn(false);
+          setLoading(false);
+          if (historyRef.current) {
+            historyRef.current.push("/logout");
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => axios.interceptors.response.eject(interceptor);
+  }, [isLoggedIn]);
 
 
   return (
@@ -29,17 +61,18 @@ function App() {
         <div>
           <Navbar />
           <Wrapper>
+            <Route path="/" render={({ history }) => { historyRef.current = history; return null; }} />
             <Route exact path="/" component={Login} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/logout" component={Logout} />
             <Route exact path="/signup" component={Signup} />
-            <Route exact path="/search" component={Search} />
-            <Route exact path="/profile" component={Profile} />
-            <Route exact path="/favorites" component={Favorites} />
-            <Route exact path="/team" component={Team} />
-            <Route exact path="/details" component={Details} />
-            <Route exact path="/newsfeed" component={Newsfeed} />
-            <Route exact path="/editprofile" component={EditProfile} />
+            <PrivateRoute exact path="/search" component={Search} />
+            <PrivateRoute exact path="/profile" component={Profile} />
+            <PrivateRoute exact path="/favorites" component={Favorites} />
+            <PrivateRoute exact path="/team" component={Team} />
+            <PrivateRoute exact path="/details" component={Details} />
+            <PrivateRoute exact path="/newsfeed" component={Newsfeed} />
+            <PrivateRoute exact path="/editprofile" component={EditProfile} />
           </Wrapper>
           <Footer />
         </div>

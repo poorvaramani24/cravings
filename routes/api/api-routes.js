@@ -9,32 +9,76 @@ const Sequelize = require('sequelize')
 
 module.exports = function(app, user) {
   app.get("/api/restaurants", (req, res) => {
-    const price = req.query.price || "2";
-    const categories = req.query.category || "";
-    const location = req.query.location || user.zip_code;
-    const transactions = req.query.location || "";
+    const type = req.query.type || "restaurant";
+    const cuisine = req.query.cuisine || "";
+    const location = req.query.location || "Chicago";
+    const diet = req.query.diet || "";
+    const accessibility = req.query.accessibility || "";
+    const radius = parseInt(req.query.radius) || 5000;
+    const apiKey = process.env.GEOAPIFY_API_KEY;
 
+    // First geocode the location, then search for restaurants nearby
     axios
-      .get("https://api.yelp.com/v3/businesses/search?&limit=50", {
-        headers: {
-          Authorization: `Bearer ${ process.env.TOKEN}`
-        },
-        params: {
-          location,
-          categories,
-          hours: "is_open_now",
-          rating: "5",
-          price,
-          transactions,
+      .get("https://api.geoapify.com/v1/geocode/search", {
+        params: { text: location, apiKey }
+      })
+      .then(geoRes => {
+        if (!geoRes.data.features || geoRes.data.features.length === 0) {
+          return res.status(404).json({ error: "Location not found" });
         }
+        const { lat, lon } = geoRes.data.features[0].properties;
+
+        // Build category: catering.restaurant.italian, catering.cafe, etc.
+        let categories = `catering.${type}`;
+        if (cuisine && type === "restaurant") {
+          categories = `catering.restaurant.${cuisine}`;
+        }
+
+        const params = {
+          categories,
+          filter: `circle:${lon},${lat},${radius}`,
+          limit: 50,
+          apiKey
+        };
+
+        // Combine diet and accessibility into conditions
+        const conditions = [diet, accessibility].filter(Boolean).join(",");
+        if (conditions) {
+          params.conditions = conditions;
+        }
+
+        return axios.get("https://api.geoapify.com/v2/places", { params });
       })
       .then(response => {
-        console.log("Yelp response received");
-        res.json(response.data);
-        //   console.log(response.data)
+        if (!response || !response.data) return;
+        console.log("Geoapify response received:", response.data.features.length, "results");
+        const FOOD_IMAGES = 7;
+        const businesses = response.data.features.map((feature, idx) => {
+          const p = feature.properties;
+          const cuisine = p.catering && p.catering.cuisine ? p.catering.cuisine.replace(/;/g, ", ") : "";
+          const diet = p.catering && p.catering.diet ? Object.keys(p.catering.diet).join(", ") : "";
+          const imageNum = (idx % FOOD_IMAGES) + 1;
+          return {
+            name: p.name || "Unknown",
+            rating: cuisine || "Restaurant",
+            price: diet || "",
+            image_url: `/images/food-${imageNum}.jpg`,
+            url: p.website || "",
+            is_closed: false,
+            id: p.place_id,
+            phone: p.contact ? p.contact.phone || "" : "",
+            location: { display_address: [p.formatted || ""] },
+            categories: p.categories || [],
+            coordinates: { latitude: p.lat || 0, longitude: p.lon || 0 },
+            distance: p.distance || 0,
+            opening_hours: p.opening_hours || ""
+          };
+        });
+        res.json({ businesses });
       })
       .catch(e => {
-        console.log(e.message);
+        console.log("Geoapify error:", e.response ? JSON.stringify(e.response.data) : e.message);
+        res.status(500).json({ error: e.message });
       });
   });
 
@@ -83,6 +127,13 @@ module.exports = function(app, user) {
     console.log(req.session.passport.user.id)
     const restName = req.body.name
     const loggedIn = req.session.passport.user.id
+    const MAX_FAVORITES = 20;
+
+    // Check if user has reached the favorites limit
+    db.Favorites.count({ where: { UserId: loggedIn } }).then(count => {
+      if (count >= MAX_FAVORITES) {
+        return res.status(400).json({ error: "limit_reached", message: `Maximum of ${MAX_FAVORITES} favorites reached.` });
+      }
 
     //  FUNCTION TO CHECK IF THERE IS ALREADY AN ENTRY IN DB ASSOCIATED WITH LOGGED IN USER'S ID
 
@@ -141,6 +192,7 @@ module.exports = function(app, user) {
           });
         }
       });
+    }); // end count check
   });
 
   app.delete("/api/delete/favorite/:id", (req, res) => {

@@ -2,40 +2,46 @@ import React from "react";
 import "./restaurantcard.css";
 import CardBtn from "../CardBtn";
 
+const FALLBACK_IMG = "/images/food-1.jpg";
 
+function RestaurantCard({ name, image, rating, price, link, display_phone, display_address, distance, opening_hours, handleBtnClick }) {
+  const imgSrc = image || FALLBACK_IMG;
+  const formattedDistance = distance ? (distance / 1000).toFixed(1) + " km" : "";
 
-function RestaurantCard( {name, image, rating, price, link, handleBtnClick }) {
   return (
     <div className="restaurant-card">
       <div className="img-container">
-        <img alt={name} src={image} />
+        <img alt={name} src={imgSrc} />
       </div>
-      <div className="content">
+
+      <div className="card-buttons">
         <CardBtn
-          style={{ opacity: image ? 1 : 0 }}
+          style={{ opacity: name ? 1 : 0 }}
           onClick={handleBtnClick}
           data-value="back"
         />
-        <ul>
-          <li>
-
-          <strong><a href={link} target="_blank"> {name} </a></strong>
-
-          </li>
-          <li>
-            <strong>Name:</strong> {name}
-          </li>
-          <li>
-            <strong>Rating:</strong> {rating} <strong> Price:</strong> {price}
-          </li>
-        </ul>
+        <CardBtn
+          style={{ opacity: name ? 1 : 0 }}
+          onClick={handleBtnClick}
+          data-value="next"
+        />
       </div>
-      <CardBtn
-        style={{ opacity: image ? 1 : 0 }}
-        onClick={handleBtnClick}
-        data-value="next"
-      />
-      {/* //add in buttons */}
+
+      <div className="card-details">
+        <h3 className="card-name">
+          {link ? <a href={link} target="_blank" rel="noopener noreferrer">{name}</a> : name}
+        </h3>
+        {rating && <p className="card-cuisine">{rating}</p>}
+        {display_address && display_address[0] && (
+          <p className="card-address">{display_address[0]}</p>
+        )}
+        <div className="card-meta">
+          {display_phone && <span className="card-phone">{display_phone}</span>}
+          {formattedDistance && <span className="card-distance">{formattedDistance}</span>}
+        </div>
+        {price && <p className="card-diet">{price}</p>}
+        {opening_hours && <p className="card-hours">{opening_hours}</p>}
+      </div>
     </div>
   );
 }

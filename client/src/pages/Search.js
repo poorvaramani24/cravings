@@ -10,63 +10,112 @@ import Spinner from "../components/Spinner";
 import { ToastContainer, toast } from "react-toastify";
 // import CustomModal from "../components/CustomModal/custommodal";
 
+const FOOD_IMAGES = 7;
+const getFoodImage = (id) => `/images/food-${(id % FOOD_IMAGES) + 1}.jpg`;
+
 function Search() {
-  const { isLoggedin, user, loading, setLoading } = useContext(UserContext);
+  const { isLoggedIn, user, loading, setLoading } = useContext(UserContext);
 
   const [restaurant, setRestaurant] = useState({});
   const [restaurants, setRestaurants] = useState([]);
-  const [location, setInput] = useState(`${user.zip_code}`);
+  const [location, setInput] = useState("");
   const [restaurantIndex, setRestaurantIndex] = useState(0);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const [transactions, setTransactions] = React.useState("");
-  const [price, setPrice] = React.useState("");
-  const [category, setCategory] = React.useState("");
-  const categories = [
-    "Categories", "afghani", "african", "argentine", "austrian", "bbq", "pancakes", "british", "buffets", "burgers", "cafes", "cafeteria", "cajun", "caribbean", "chinese", "comfortfood", "cuban", "czech", "delis", "diners", "french", "german", "gluten_free", "greek", "halal", "honduran", "hotdog", "italian", "japanese", "ramen", "kebab", "korean", "kosher", "latin", "colombian", "mediterranean", "falafel", "mexican", "noodles", "persian", "pizza", "polish", "polynesian", "portuguese", "salad", "sandwiches", "seafood", "singaporean", "slovakian", "somali", "soulfood", "soup", "southern", "spanish", "steak", "sushi", "syrian", "taiwanese", "tapas", "tex-mex", "thai", "turkish", "ukrainian", "vegan", "vegetarian", "vietnamese", "waffles", "wraps"
-  ];
+  const [type, setType] = useState("");
+  const [cuisine, setCuisine] = useState("");
+  const [diet, setDiet] = useState("");
+  const [accessibility, setAccessibility] = useState("");
+  const [radius, setRadius] = useState("5000");
 
+  const [favorites, setFavorites] = useState([]);
+  const [showFavDrawer, setShowFavDrawer] = useState(false);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
+    loadFavorites();
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !hasSearched) return;
     setLoading(true);
     loadRestaurants();
-  }, [price, category, location, transactions, user.zip_code]);
+  }, [type, cuisine, diet, accessibility, radius]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !location) return;
+    setHasSearched(true);
+    setLoading(true);
+    loadRestaurants();
+  }, [location]);
+
+  const loadFavorites = () => {
+    API.fetchFavorites()
+      .then(favs => {
+        if (favs) setFavorites(favs);
+      })
+      .catch(err => console.log(err));
+  };
+
+  const deleteFavorite = id => {
+    axios.delete(`/api/delete/favorite/${id}`).then(() => {
+      setFavorites(favorites.filter(f => f.id !== id));
+      toast.info("Removed from favorites", {
+        position: toast.POSITION.BOTTOM_RIGHT
+      });
+    });
+  };
+
+  const MAX_FAVORITES = 20;
+
+  const addToFavorites = (restaurantData) => {
+    if (favorites.length >= MAX_FAVORITES) {
+      toast.error(
+        `You've reached the maximum limit of ${MAX_FAVORITES} favorites! Remove some to add new ones.`,
+        { position: toast.POSITION.BOTTOM_RIGHT }
+      );
+      return Promise.resolve();
+    }
+
+    return axios
+      .post("/api/post/favoritestodb", restaurantData)
+      .then(res => {
+        if (!res.data) {
+          toast.error("Psst... This restaurant is already in your favorites!", {
+            position: toast.POSITION.BOTTOM_RIGHT
+          });
+        } else if (res.data.count) {
+          toast.warning(
+            `You and ${res.data.count} other(s) already have ${res.data.name} added to your favorites!`,
+            { position: toast.POSITION.BOTTOM_RIGHT }
+          );
+        } else if (res.data.favorite) {
+          toast.success(`${res.data.favorite.item.name} was added to your favorites`, {
+            position: toast.POSITION.BOTTOM_RIGHT
+          });
+        }
+        loadFavorites();
+      })
+      .catch(err => {
+        if (err.response && err.response.status === 400 && err.response.data.error === "limit_reached") {
+          toast.error(
+            `You've reached the maximum limit of ${MAX_FAVORITES} favorites! Remove some to add new ones.`,
+            { position: toast.POSITION.BOTTOM_RIGHT }
+          );
+        }
+      });
+  };
 
   const nextRestaurant = restaurantIndex => {
     // Ensure that the restaurant index stays within our range of restaurants
     if (restaurantIndex < restaurants.length) {
-      axios
-        .post("/api/post/favoritestodb", restaurants[restaurantIndex - 1])
-        .then(res => {
-          if (!res.data) {
-            toast.error("Psst... This restaurant is already in your favorites!", {
-              position: toast.POSITION.BOTTOM_RIGHT
-            });
-          } else if (res.data.count) {
-              toast.warning(
-                `You and ${res.data.count} other(s) already have ${res.data.name} added to your favorites!`,
-                {
-                  position: toast.POSITION.BOTTOM_RIGHT
-                }
-              );
-          } else if(res.data.favorite) {
-            toast.success(`${res.data.favorite.item.name} was added to your favorites`, {
-              position: toast.POSITION.BOTTOM_RIGHT
-            });
-          }
-        })
-        .then(setRestaurant(restaurants[restaurantIndex]))
-        .then(setRestaurantIndex(restaurantIndex));
-    } else {
-      axios
-        .post("/api/post/favoritestodb", restaurants[restaurantIndex - 1])
-        .then(res => {
-            toast.success(
-              `${res.data.favorite.name} was added to your favorites`,
-              {
-                position: toast.POSITION.BOTTOM_RIGHT
-              }
-            );
+      addToFavorites(restaurants[restaurantIndex - 1])
+        .then(() => {
+          setRestaurant(restaurants[restaurantIndex]);
+          setRestaurantIndex(restaurantIndex);
         });
+    } else {
+      addToFavorites(restaurants[restaurantIndex - 1]);
     }
   };
 
@@ -103,7 +152,13 @@ function Search() {
       e.preventDefault();
     }
 
-    API.fetchRestaurants(price, category, location, user.zip_code, transactions)
+    if (!location) {
+      setLoading(false);
+      return;
+    }
+
+    setHasSearched(true);
+    API.fetchRestaurants({ type, cuisine, location, diet, accessibility, radius })
       .then(r => {
         setLoading(false);
         if (r[0].name !== "undefined") {
@@ -126,71 +181,277 @@ function Search() {
       });
   };
 
+  const cuisineDisabled = type !== "" && type !== "restaurant";
+
   return (
     <Wrapper>
-      <h1 className="d-flex justify-content-center header">
-        Welcome {user.first_name}!{" "}
-      </h1>
+      <div className="search-layout">
+        {/* Left sidebar - Filters */}
+        <aside className="filter-sidebar">
+          <h3 className="filter-sidebar-title">Filters</h3>
 
-      <br></br>
-      <div className="d-flex justify-content-center">
-        <form onSubmit={loadRestaurants}>
-          {/* <div className="row d-inline-flex"> */}
-          <SearchBar setInput={setInput}></SearchBar>
-          {/* </div> */}
-          <br />
-
-          <div className="dropdown">
+          <div className="filter-group">
+            <label className="filter-label">Type</label>
             <select
-              className="dropdown-content"
-              name="category"
-              value={category}
-              onChange={event => setCategory(event.target.value)}
+              className="filter-select"
+              name="type"
+              value={type}
+              onChange={event => setType(event.target.value)}
             >
-              {categories.map(c => {
-                return <option value={c}> {c} </option>;
-              })}
-            </select>
-
-            <select
-              className="dropdown-content"
-              name="price"
-              value={price}
-              onChange={event => setPrice(event.target.value)}
-            >
-              <option value=""> Price </option>
-              <option value="1"> $ </option>
-              <option value="2"> $$ </option>
-              <option value="3"> $$$ </option>
-              <option value="4"> $$$$ </option>
-            </select>
-
-            <select
-              className="dropdown-content"
-              name="transactions"
-              value={transactions}
-              onChange={event => setTransactions(event.target.value)}
-            >
-              <option value=""> Pickup/Delivery </option>
-              <option value="delivery"> Delivery </option>
-              <option value="pickup"> Pickup </option>
+              <option value="">Select type</option>
+              <option value="restaurant">Restaurant</option>
+              <option value="cafe">Cafe</option>
+              <option value="bar">Bar</option>
+              <option value="fast_food">Fast Food</option>
+              <option value="pub">Pub</option>
+              <option value="ice_cream">Ice Cream</option>
+              <option value="food_court">Food Court</option>
+              <option value="biergarten">Biergarten</option>
+              <option value="taproom">Taproom</option>
             </select>
           </div>
-        </form>
+
+          <div className="filter-group">
+            <label className="filter-label">Cuisine</label>
+            <select
+              className="filter-select"
+              name="cuisine"
+              value={cuisine}
+              onChange={event => setCuisine(event.target.value)}
+              disabled={cuisineDisabled}
+            >
+              <option value="">Select cuisine</option>
+              <option value="american">American</option>
+              <option value="african">African</option>
+              <option value="bbq">BBQ</option>
+              <option value="brazilian">Brazilian</option>
+              <option value="burger">Burger</option>
+              <option value="caribbean">Caribbean</option>
+              <option value="chinese">Chinese</option>
+              <option value="fish_and_chips">Fish & Chips</option>
+              <option value="french">French</option>
+              <option value="german">German</option>
+              <option value="greek">Greek</option>
+              <option value="indian">Indian</option>
+              <option value="italian">Italian</option>
+              <option value="japanese">Japanese</option>
+              <option value="korean">Korean</option>
+              <option value="mediterranean">Mediterranean</option>
+              <option value="mexican">Mexican</option>
+              <option value="middle_eastern">Middle Eastern</option>
+              <option value="noodle">Noodle</option>
+              <option value="peruvian">Peruvian</option>
+              <option value="pizza">Pizza</option>
+              <option value="ramen">Ramen</option>
+              <option value="seafood">Seafood</option>
+              <option value="spanish">Spanish</option>
+              <option value="steak_house">Steak</option>
+              <option value="sushi">Sushi</option>
+              <option value="thai">Thai</option>
+              <option value="turkish">Turkish</option>
+              <option value="vegan">Vegan</option>
+              <option value="vietnamese">Vietnamese</option>
+              <option value="wings">Wings</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label className="filter-label">Diet</label>
+            <select
+              className="filter-select"
+              name="diet"
+              value={diet}
+              onChange={event => setDiet(event.target.value)}
+            >
+              <option value="">Select diet</option>
+              <option value="vegetarian">Vegetarian</option>
+              <option value="vegan">Vegan</option>
+              <option value="halal">Halal</option>
+              <option value="kosher">Kosher</option>
+              <option value="gluten_free">Gluten Free</option>
+              <option value="organic">Organic</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label className="filter-label">Accessibility</label>
+            <select
+              className="filter-select"
+              name="accessibility"
+              value={accessibility}
+              onChange={event => setAccessibility(event.target.value)}
+            >
+              <option value="">Select option</option>
+              <option value="wheelchair">Wheelchair</option>
+              <option value="internet_access.free">Free WiFi</option>
+              <option value="dogs">Dog Friendly</option>
+              <option value="no_smoking">No Smoking</option>
+              <option value="takeaway">Takeaway</option>
+              <option value="delivery">Delivery</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label className="filter-label">Radius</label>
+            <select
+              className="filter-select"
+              name="radius"
+              value={radius}
+              onChange={event => setRadius(event.target.value)}
+            >
+              <option value="1000">1 km</option>
+              <option value="3000">3 km</option>
+              <option value="5000">5 km</option>
+              <option value="10000">10 km</option>
+              <option value="25000">25 km</option>
+            </select>
+          </div>
+        </aside>
+
+        {/* Center - Main content */}
+        <main className="search-main">
+          <h1 className="header">
+            Welcome {user.first_name}!
+          </h1>
+
+          <div className="search-main-content">
+            <form onSubmit={loadRestaurants}>
+              <SearchBar setInput={setInput}></SearchBar>
+            </form>
+
+            {!hasSearched ? (
+              <div className="welcome-message">
+                <h2>Discover your next favorite restaurant</h2>
+                <p>Enter a city, state, or zip code above and use the filters on the left to find restaurants near you.</p>
+                <p>Swipe right to save to favorites, swipe left to skip!</p>
+              </div>
+            ) : (
+              <div className="card-container">
+                {loading ? <Spinner /> :
+                <RestaurantCard
+                  name={restaurant.name}
+                  rating={restaurant.rating}
+                  price={restaurant.price}
+                  link={restaurant.link}
+                  image={restaurant.image}
+                  display_phone={restaurant.display_phone}
+                  display_address={restaurant.display_address}
+                  distance={restaurant.distance}
+                  opening_hours={restaurant.opening_hours}
+                  handleBtnClick={handleBtnClick}
+                />}
+              </div>
+            )}
+          </div>
+        </main>
+
+        {/* Right sidebar - Favorites */}
+        <aside className="favorites-sidebar">
+          <h3 className="filter-sidebar-title">
+            Favorites
+            <span className="fav-count">{favorites.length}</span>
+          </h3>
+          <div className="fav-list">
+            {favorites.length === 0 ? (
+              <p className="fav-empty">Swipe right to add favorites!</p>
+            ) : (
+              favorites.slice(0, 20).map(fav => (
+                <div className="fav-item" key={fav.id}>
+                  <img
+                    className="fav-item-img"
+                    src={fav.image && fav.image.startsWith("/images/") ? fav.image : getFoodImage(fav.id)}
+                    alt={fav.name}
+                  />
+                  <div className="fav-item-info">
+                    <span className="fav-item-name">
+                      {fav.link ? (
+                        <a href={fav.link} target="_blank" rel="noopener noreferrer">{fav.name}</a>
+                      ) : fav.name}
+                    </span>
+                    <span className="fav-item-detail">{fav.rating}</span>
+                  </div>
+                  <button
+                    className="fav-item-remove"
+                    onClick={() => deleteFavorite(fav.id)}
+                    title="Remove"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))
+            )}
+            {favorites.length > 20 && (
+              <p className="fav-overflow">+ {favorites.length - 20} more</p>
+            )}
+          </div>
+        </aside>
       </div>
 
-      <div className="d-flex justify-content-center">
-        <br></br>
-        {loading ? [<Spinner></Spinner>] : 
-        <RestaurantCard
-          name={restaurant.name}
-          rating={restaurant.rating}
-          price={restaurant.price}
-          link={restaurant.link}
-          image={restaurant.image}
-          handleBtnClick={handleBtnClick}
-        />}
-      </div>
+      {/* Floating favorites button - visible only on mobile/tablet via CSS */}
+      <button
+        className="fav-toggle-btn"
+        onClick={() => setShowFavDrawer(true)}
+        aria-label="Open favorites"
+      >
+        <span role="img" aria-hidden="true">&#9829;</span>
+        {favorites.length > 0 && (
+          <span className="fav-toggle-badge">{favorites.length}</span>
+        )}
+      </button>
+
+      {/* Favorites drawer overlay */}
+      {showFavDrawer && (
+        <div className="fav-drawer-overlay" onClick={() => setShowFavDrawer(false)}>
+          <aside className="fav-drawer" onClick={e => e.stopPropagation()}>
+            <div className="fav-drawer-header">
+              <h3 className="filter-sidebar-title">
+                Favorites
+                <span className="fav-count">{favorites.length}</span>
+              </h3>
+              <button
+                className="fav-drawer-close"
+                onClick={() => setShowFavDrawer(false)}
+                aria-label="Close favorites"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="fav-list">
+              {favorites.length === 0 ? (
+                <p className="fav-empty">Swipe right to add favorites!</p>
+              ) : (
+                favorites.slice(0, 20).map(fav => (
+                  <div className="fav-item" key={fav.id}>
+                    <img
+                      className="fav-item-img"
+                      src={fav.image && fav.image.startsWith("/images/") ? fav.image : getFoodImage(fav.id)}
+                      alt={fav.name}
+                    />
+                    <div className="fav-item-info">
+                      <span className="fav-item-name">
+                        {fav.link ? (
+                          <a href={fav.link} target="_blank" rel="noopener noreferrer">{fav.name}</a>
+                        ) : fav.name}
+                      </span>
+                      <span className="fav-item-detail">{fav.rating}</span>
+                    </div>
+                    <button
+                      className="fav-item-remove"
+                      onClick={() => deleteFavorite(fav.id)}
+                      title="Remove"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))
+              )}
+              {favorites.length > 20 && (
+                <p className="fav-overflow">+ {favorites.length - 20} more</p>
+              )}
+            </div>
+          </aside>
+        </div>
+      )}
 
       <ToastContainer
         autoClose={3000}/>

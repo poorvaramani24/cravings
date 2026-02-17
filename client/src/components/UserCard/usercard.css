@@ -3,28 +3,9 @@
   font-family: sans-serif;
 }
 
-.team-container {
-  padding-top: 50px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* width:1200px; */
-  flex-flow: row wrap;
-  padding: 20px;
-  justify-content: center;
-  align-content: stretch;
-  overflow: auto;
-}
-
 .user-wrapper{
-  margin-right: auto; /* 1 */
-  margin-left:  auto; /* 1 */
-
-  max-width: 960px; /* 2 */
-
-  padding-right: 10px; /* 3 */
-  padding-left:  10px; /* 3 */
+  display: inline-block;
+  vertical-align: top;
 }
 
 .user-card {
@@ -33,12 +14,11 @@
   height: 325px;
   margin: 1rem;
   position: relative;
-  width: 250px;
+  max-width: 250px;
+  width: 100%;
   box-shadow: 0 3px 6px #999, 0 3px 6px #999;
   text-align: left;
   border-radius: 1rem;
-  float: left;
-  
 }
 
 .user-card > .img-container {

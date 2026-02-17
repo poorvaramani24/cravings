@@ -9,6 +9,7 @@ import Title from "../components/Title";
 import UserContext from '../context/UserContext';
 import Spinner from '../components/Spinner';
 import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
 
 
 const Logout = props => {
@@ -16,10 +17,20 @@ const Logout = props => {
   const [formLogin, setFormLogin] = useState(null);
   const { user, setUser, isLoggedIn, setIsLoggedIn, loading, setLoading } = useContext(UserContext)
 
-  //executes loadUser and populates array w/res data
+  // On mount, call backend logout to destroy session
   useEffect(() => {
-    
-  }, [user])            
+    if (isLoggedIn) {
+      axios.get("/logout").then(() => {
+        setUser({});
+        setIsLoggedIn(false);
+        setLoading(false);
+      }).catch(() => {
+        setUser({});
+        setIsLoggedIn(false);
+        setLoading(false);
+      });
+    }
+  }, []);
 
 
   // Handles updating component state when the user types into the input field
@@ -80,7 +91,7 @@ const Logout = props => {
 
   return (
     <Wrapper>
-      <Title>You are currently logged out! Please log back in.</Title>
+      <Title>You have been logged out. Please log back in.</Title>
       <FormCard
         form={
           <form>
@@ -93,7 +104,6 @@ const Logout = props => {
             />
             <Input
               label="Password"
-              type="password"
               type="password"
               onChange={handleInputChange}
               id="password"

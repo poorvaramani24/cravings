@@ -11,6 +11,12 @@
   }
 }
 
+@media only screen and (max-width: 480px) {
+  .feedcard-container {
+    width: 95%;
+  }
+}
+
 * {
   box-sizing: border-box;
   font-family: sans-serif;
@@ -27,8 +33,6 @@
   box-shadow: 0 3px 6px #999, 0 3px 6px #999;
   text-align: left;
   border-radius: 1rem;
-  float: left;
-  
 }
 
 .feed-card > .img-container {
