@@ -28,9 +28,10 @@ module.exports = function (app) {
 
   // //GET logout to stop session
   app.get('/logout', (req, res) => {
-    req.logOut();
-    // console.log('logout hit')
-    res.send(req);
+    req.logOut(function(err) {
+      if (err) { return res.status(500).json({ error: err.message }); }
+      res.json({ message: "Logged out" });
+    });
   })
 
 
