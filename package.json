@@ -10,11 +10,13 @@
     "client": "cd client && npm run start",
     "client:install": "cd client && npm install",
     "build": "cd client && npm run build",
-    "postinstall": "cd client && npm install && npm run build"
+    "postinstall": "cd client && npm install && npm run build",
+    "test:e2e": "npx playwright test"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.11"
   },
@@ -34,7 +36,7 @@
     "passport-local": "^1.0.0",
     "sequelize": "^6.37.7",
     "sequelize-cli": "^6.6.5"
-   },
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cravings-app/cravings.git"

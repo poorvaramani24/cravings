@@ -66,6 +66,7 @@ Here are some things Claude picked up (and helped solve) while modernizing this 
 - **Railway deployment has its own quirks.** Getting the build pipeline right — making sure the client builds, the server starts, and MySQL connects with the right env vars — required iterating through several deploy attempts to nail down.
 - **Session-based auth + proxy config needs care.** The dev setup proxies port 3000 to 3001, and Passport.js sessions need to survive that hop. Small misconfigurations here silently break login without obvious errors.
 - **UI redesign with sticky navbar.** Refreshed the profile, team, newsfeed, and auth pages with a modern look and added a sticky navbar for better navigation.
+- **Writing Playwright tests exposed blind spots.** Claude set up Playwright from scratch, wrote the config, created a shared login helper, and generated 27 E2E tests across 7 files — all passing. But the initial test suite had notable gaps. Claude covered the "happy path" well: login/logout, auth guards, basic search, and page loading. What it missed was the *user journey* — it didn't test adding and removing favorites, verifying those actions showed up in the newsfeed, filter visibility and behavior (like cuisine disabling for non-restaurant types), signup flows (both successful and failed), or actually editing and saving profile changes. Poorva had to review the test suite and specifically ask for each of these scenarios. The lesson: Claude is good at scaffolding tests for obvious flows, but a human needs to think through the edge cases and end-to-end user stories that actually matter. Claude also initially used `page.goto()` for navigation which broke tests because the app stores auth state in React Context (memory only) — full page reloads wiped the session. Switching to navbar link clicks for client-side routing fixed it, but it was a reminder that Claude needs to understand app architecture, not just test patterns.
 
 ## What Poorva Taught Claude
 
@@ -75,6 +76,7 @@ Here are some things Claude picked up (and helped solve) while modernizing this 
 - **Mobile responsiveness isn't optional.** Claude built features that looked great on desktop but fell apart on mobile. It took several rounds of Poorva flagging broken layouts, overlapping elements, and unusable swipe interactions on her phone before Claude got the responsive design right. A reminder that real users don't test on a 27" monitor.
 - **Do your own research.** When it came time to replace the Yelp API, Claude suggested the obvious options — Foursquare, Google Places API, etc. But Poorva did her own digging, found Geoapify as a free-tier-friendly alternative, read through the docs herself, and shared them with Claude to implement. Claude didn't discover the best solution — Poorva did.
 - **When to stop over-engineering.** Poorva kept things focused on what mattered — get it deployed, get it working, make it look good. No need for perfect abstractions or premature optimization.
+- **Test coverage isn't just about passing tests.** Claude generated a full Playwright test suite that all passed — but passing isn't the same as thorough. Poorva reviewed the tests and pointed out missing scenarios one by one: "Where's the remove favorite test?" "Verify the newsfeed shows the activity." "Did you test filters?" "What about signup?" "What about actually editing the profile?" Each question revealed a gap Claude hadn't considered. The takeaway: AI can generate tests quickly, but a human who understands the product needs to audit what's actually being tested.
 
 ## What Claude Taught Poorva
 
@@ -89,6 +91,7 @@ Here are some things Claude picked up (and helped solve) while modernizing this 
 - **APIs:** Geoapify Places API (formerly Yelp Fusion)
 - **Backend:** Express, express-session, Passport.js, Sequelize, MySQL, bcrypt, dotenv
 - **Frontend:** React, React Router, Axios, Bootstrap, react-toastify
+- **Testing:** Playwright (E2E)
 - **Deployment:** Railway (formerly Heroku)
 
 ## Getting Started
@@ -98,6 +101,7 @@ Here are some things Claude picked up (and helped solve) while modernizing this 
 - Node.js 22+
 - MySQL
 - npm
+- Chromium (installed automatically by Playwright)
 
 ### Setup
 
@@ -137,6 +141,13 @@ Here are some things Claude picked up (and helped solve) while modernizing this 
    npm run start:dev
    ```
    This starts the Express server on port 3001 and the React dev server on port 3000 concurrently.
+
+6. **Run E2E tests** (requires the dev servers to be running)
+   ```bash
+   npx playwright install chromium
+   npm run test:e2e
+   ```
+   Runs 27 Playwright tests covering auth, search, filters, favorites, newsfeed, profile, team, and logout.
 
 ## API Endpoints
 
