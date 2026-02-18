@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import "./navbar.css";
+import logo from "./logo.png";
 import UserContext from "../../context/UserContext";
 
 function Navbar() {
@@ -19,7 +20,7 @@ function Navbar() {
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <a className="navbar-brand" href="#">
         <img
-          src="https://github.com/Swipable/swipable/blob/development/client/src/components/Navbar/logo.png?raw=true"
+          src={logo}
           width="130"
           alt="cravings"
         />

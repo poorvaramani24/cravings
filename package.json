@@ -37,10 +37,10 @@
    },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Swipable/swipable.git"
+    "url": "git+https://github.com/cravings-app/cravings.git"
   },
   "bugs": {
-    "url": "https://github.com/Swipable/swipable/issues"
+    "url": "https://github.com/cravings-app/cravings/issues"
   },
-  "homepage": "https://github.com/Swipable/swipable#readme"
+  "homepage": "https://github.com/cravings-app/cravings#readme"
 }

@@ -112,6 +112,9 @@ module.exports = function(app, user) {
   // Deb changes:
 
   app.get("/api/get/favoritesfromdb", function(req, res) {
+    if (!req.session.passport || !req.session.passport.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
     const userID = req.session.passport.user.id;
     db.Favorites.findAll({
       where: {
@@ -124,7 +127,9 @@ module.exports = function(app, user) {
 
   //add to favourites on swipe right
   app.post("/api/post/favoritestodb", (req, res) => {
-    console.log(req.session.passport.user.id)
+    if (!req.session.passport || !req.session.passport.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
     const restName = req.body.name
     const loggedIn = req.session.passport.user.id
     const MAX_FAVORITES = 20;
@@ -196,12 +201,17 @@ module.exports = function(app, user) {
   });
 
   app.delete("/api/delete/favorite/:id", (req, res) => {
-    // console.log(req.params.id);
+    if (!req.session.passport || !req.session.passport.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
     db.Favorites.findOne({
       where: {
         id: req.params.id
       }
     }).then(function(data) {
+      if (!data) {
+        return res.status(404).json({ error: "Favorite not found" });
+      }
       db.Favorites.destroy({
         where: {
           id: data.id
@@ -212,9 +222,9 @@ module.exports = function(app, user) {
           username: req.session.passport.user.username,
           activity_type: "removed from favourites",
           restaurant_name: data.name,
-          image: req.body.image,
-          link: req.body.link
-                }).then(feeds => {
+          image: data.image,
+          link: data.link
+        }).then(feeds => {
           res.json({ response: response, feeds: feeds });
         });
       });

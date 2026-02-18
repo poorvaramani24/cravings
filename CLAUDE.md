@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Install client deps:** `npm run install` (runs `cd client && npm install`)
 - **Seed DB:** `mysql -u root -p < seeders/seed.sql`
 
-**Node version:** Use Node 18 via `nvm use 18`. Node 22 causes fsevents crashes with react-scripts@3. The `NODE_OPTIONS=--openssl-legacy-provider` flag is set in the client/build scripts for OpenSSL 3.0 compatibility.
+**Node version:** Node 22 is fine. The `NODE_OPTIONS=--openssl-legacy-provider` flag is set in the client/build scripts for OpenSSL 3.0 compatibility.
 
 ## Architecture
 

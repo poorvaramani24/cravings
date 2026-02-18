@@ -4,7 +4,7 @@ import "./footer.css";
 function Footer() {
   return (
     <footer className="footer">
-      <span>Swipable</span>
+      <span>Cravings</span>
     </footer>
   );
 }
