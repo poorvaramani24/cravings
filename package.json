@@ -11,14 +11,18 @@
     "client:install": "cd client && npm install",
     "build": "cd client && npm run build",
     "postinstall": "cd client && npm install && npm run build",
-    "test:e2e": "npx playwright test"
+    "test:e2e": "npx playwright test",
+    "test:api": "NODE_ENV=test npx jest --config tests/api/jest.config.js --forceExit --detectOpenHandles"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "concurrently": "^9.2.1",
-    "nodemon": "^3.1.11"
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "sqlite3": "^5.1.7",
+    "supertest": "^7.2.2"
   },
   "dependencies": {
     "axios": "^1.13.5",

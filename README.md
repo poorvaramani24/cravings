@@ -6,7 +6,7 @@
 
 **Test Accounts:**
 - Username: `test` / Password: `test`
-- Username: `adumbledor` / Password: `dumbledore` *(Albus Dumbledore, headmaster@hogwarts.com — because every app needs a wizard)*
+- Username: `dumbledore` / Password: `dumbledore` *(Albus Dumbledore, headmaster@hogwarts.com — because every app needs a wizard)*
 
 ## About This App
 
